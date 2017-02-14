@@ -6,11 +6,15 @@
 #include<netdb.h>
 #include<string.h>
 #include<pthread.h>
+#include<mysql/mysql.h>
+//#include<mysql.h>
 int mysocket(void);
 void error(char *);
 int myaccept(int mysock);
 void *deal(void *);
 pthread_t create_pthread(int myconnect);
+void mysql_do(int);
+MYSQL mysql_connect(void);
 int main(void)
 {
         int mysock = 0;
@@ -24,9 +28,29 @@ int main(void)
         }
         return 0;
 }
+void mysql_do(int myconnect)
+{
+        char buff[1024];
+        int c = 0;
+        MYSQL mysql;
+        c = recv( (int*)myconnect, buff,1024,0);
+        if( -1 == c )
+                error("cannot get buff\n");
+        mysql = mysql_connect();
+}
+MYSQL mysql_connect(void)
+{
+        MYSQL my;
+        int c = 0;
+        mysql_init(&my);
+        c = mysql_real_connect(&my, "localhost", "root", "lihuanpu", "tiku",0,NULL,0);
+        if( !c )
+                error("cannot connect database");
+        return my;
+}
 void *deal(void *myconnect)
 {
-
+        mysql_do((int*)myconnect);
         return NULL;
 }
 pthread_t create_pthread(int myconnect)
