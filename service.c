@@ -7,6 +7,11 @@
 #include<string.h>
 #include<pthread.h>
 #include<mysql/mysql.h>
+#include<sys/epoll.h>
+#include<netinet/in.h>
+#include<fcntl.h>
+#include"service_student.h"
+#include"service_teacher.h"
 int mysocket(void);
 void error(char *);
 int myaccept(int mysock);
@@ -14,16 +19,36 @@ void *deal(void *);
 pthread_t create_pthread(int myconnect);
 void mysql_do(int);
 MYSQL mysql_connect(void);
+extern void server_student(int,MYSQL);
+extern void server_teacher(int,MYSQL);
 int main(void)
 {
 	int mysock = 0;
 	int myconnect = 0;
+	int epfd,nfds;
+	struct epoll_event ev,event[20];
+	int i;
 	pthread_t tid = 0;
 	mysock = mysocket();
+	epfd = epoll_create(256);
+	if( -1 == epfd )
+		error("epoll create error\n");
+	ev.events = EPOLLIN | EPOLLET;//set in and et
+	ev.data.fd = mysock;
+	if(epoll_ctl(epfd,EPOLL_CTL_ADD,mysock,&ev) == -1 )
+		error("epoll ctl error\n");
 	while(1)
 	{
-		myconnect = myaccept(mysock);
-		tid = create_pthread(myconnect);
+	//epoll socket
+		nfds = epoll_wait(epfd,event,20,500);
+		for(i = 0; i < nfds; i++)
+		{
+			if(event[i].data.fd == mysock)
+			{
+				myconnect = myaccept(mysock);//accept socket
+				tid = create_pthread(myconnect);//deal the cnnect
+			}
+		}
 	}
 	return 0;
 }
@@ -40,27 +65,27 @@ void mysql_do(int myconnect)
 	/**** who login(buff[0]) 1:student  2:teacher ****/
 	if( buff[0] == '1' )
 	{
-		;
+		server_student(myconnect,mysql);
 	}
 	else if( buff[0] == '2')
 	{
-		;
+		server_teacher(myconnect,mysql);
 	}
 	else
 	{
-		error("data error");
+		error("server recva login data error");
 	}
-	buff[0] = '2';
-	buff[1] = '2';
-	c = send( myconnect, buff,sizeof(buff),0);
-	printf("%d %s\n",myconnect,buff);
+//	buff[0] = '2';
+//	buff[1] = '2';
+//	c = send( myconnect, buff,sizeof(buff),0);
+//	printf("%d %s\n",myconnect,buff);
 }
 MYSQL mysql_connect(void)
 {
 	MYSQL my;
 	int c = 0;
 	int i = 5;
-	while(i--)/** connect database 5 times,if not exit  **/
+	while( i-- )/** connect database 5 times,if not exit  **/
 	{
 		mysql_init(&my);
 		c = mysql_real_connect(&my, "localhost", "root", "lihuanpu", "tiku",0,NULL,0);
