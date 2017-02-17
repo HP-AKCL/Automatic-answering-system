@@ -12,10 +12,12 @@ char *smenu[] ={
 	"0: exit\n",
 	"in your chiose:"};
 int student_menu_print(void);
-void function_1(int);
-void function_2(int);
-void function_3(int);
-void function_1(int sock)
+void function_1(int,char[][10]);
+void function_2(int,char**);
+void function_3(int,char**);
+void function_2(int sock,char** info){}
+void function_3(int sock,char** info){}
+void function_1(int sock,char info[][10])
 {
 	char mesg[1024];
 	char buff[2];
@@ -29,10 +31,13 @@ void function_1(int sock)
 		printf("send data error\n");
 		exit(0);
 	}
-	recv(sock,mesg,sizeof(mesg),0);
+//	recv(sock,mesg,sizeof(mesg),0);
+	printf("%s\n",buff);
+	printf("%s\n",&info[0]);
+	printf("%s\n",&info[1]);
 	printf("%s\n",buff);
 }
-void student(int sock,char** info)
+void student(int sock,char info[][10])
 {
 	int num = 0;
 	while(1)
@@ -41,13 +46,13 @@ void student(int sock,char** info)
 		switch(num)
 		{
 			case 1:
-				function_1(sock);
+				function_1(sock,info);
 				break;
 			case 2:
-				function_1(sock);
+				function_2(sock,info);
 				break;
 			case 3:
-				function_1(sock);
+				function_3(sock,info);
 				break;
 			case 0:
 			default:
