@@ -13,7 +13,7 @@ char *win_info[] = {
 	"name    :",
 	"password:"};
 extern void student(int,char[][10]);
-extern void teacher(int,char**);
+extern void teacher(int,char[][10]);
 
 int my_client_al_print(int sock)
 {

@@ -13,29 +13,42 @@ char *smenu[] ={
 	"in your chiose:"};
 int student_menu_print(void);
 void function_1(int,char[][10]);
-void function_2(int,char**);
-void function_3(int,char**);
-void function_2(int sock,char** info){}
-void function_3(int sock,char** info){}
+void function_2(int,char[][10]);
+void function_3(int,char[][10]);
+void function_3(int sock,char info[][10]){}
+void function_2(int sock,char info[][10]){}
 void function_1(int sock,char info[][10])
 {
 	char mesg[1024];
 	char buff[2];
 	int flag;
 	bzero(buff,sizeof(buff));
-	buff[0] = '1';
-	buff[1] = '1';
+	buff[0] = '0';
+	buff[1] = '0';// 00connect 01send name pas 10send data 11send exit
 	flag = send(sock,buff,sizeof(buff),0);
+//	printf("%d %c %c\n",sock,buff[1],buff[0]);
 	if( flag != 2 )
 	{
 		printf("send data error\n");
 		exit(0);
 	}
-//	recv(sock,mesg,sizeof(mesg),0);
-	printf("%s\n",buff);
-	printf("%s\n",&info[0]);
-	printf("%s\n",&info[1]);
-	printf("%s\n",buff);
+	recv(sock,buff,sizeof(buff),0);
+	printf("!!!!!!!!!!!---------->%c %c\n",buff[0],buff[1]);
+//recv data 00 01 10 11
+	if(buff[0] == '0' && buff[1] == '0')
+	{
+		;
+	}
+	else
+	{
+		printf("student fun1 recv data error\n");
+	}
+	bzero(mesg,sizeof(mesg));
+	strcat(mesg,&info[0]);
+	strcat(mesg,"|");
+	strcat(mesg,&info[1]);
+	flag = send(sock,mesg,sizeof(mesg),0);
+	printf("----->mesg%s\n",mesg);
 }
 void student(int sock,char info[][10])
 {

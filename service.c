@@ -19,7 +19,7 @@ void *deal(void *);
 pthread_t create_pthread(int myconnect);
 void mysql_do(int);
 MYSQL mysql_connect(void);
-extern void server_student(int,MYSQL);
+extern void server_student(int,MYSQL,char);
 extern void server_teacher(int,MYSQL);
 int main(void)
 {
@@ -33,7 +33,7 @@ int main(void)
 	epfd = epoll_create(256);
 	if( -1 == epfd )
 		error("epoll create error\n");
-	ev.events = EPOLLIN | EPOLLET;//set in and et
+	ev.events = EPOLLIN;//set in and et
 	ev.data.fd = mysock;
 	if(epoll_ctl(epfd,EPOLL_CTL_ADD,mysock,&ev) == -1 )
 		error("epoll ctl error\n");
@@ -62,12 +62,11 @@ void mysql_do(int myconnect)
 	if( -1 == c )
 		error("cannot get buff\n");
 	/**** who login(buff[0]) 1:student  2:teacher ****/
-	if( buff[0] == '1' )
+	if( buff[0] == '0' )
 	{
-		printf("student%d %s\n",c,buff);
-		server_student(myconnect,mysql);
+		server_student(myconnect,mysql,buff[1]);
 	}
-	else if( buff[0] == '2')
+	else if( buff[0] == '1')
 	{
 		server_teacher(myconnect,mysql);
 	}
@@ -88,7 +87,7 @@ MYSQL mysql_connect(void)
 	while( i-- )/** connect database 5 times,if not exit  **/
 	{
 		mysql_init(&my);
-		c = mysql_real_connect(&my, "localhost", "root", "lihuanpu", "tiku",0,NULL,0);
+		c = mysql_real_connect(&my,"localhost", "root", "lihuanpu", "tiku",0,NULL,0);
 		if( !c )
 			error("cannot connect database");
 		else
@@ -109,6 +108,7 @@ pthread_t create_pthread(int myconnect)
 	if( NULL == p )
 		error("cannot malloc\n");
 	*p = myconnect;
+	
 	tid = pthread_create(&tid, NULL, deal,(void *)p);
 	if( -1 == tid )
 		error("cannot create pthread\n");
@@ -130,7 +130,7 @@ int mysocket(void)
 	int reuse = 1;
 	struct sockaddr_in name;
 	int c;
-
+	int i = 5;
 	mysocket = socket( PF_INET, SOCK_STREAM, 0);
 	if( -1 == mysocket )
 		error("cannot create socket\n");
@@ -141,9 +141,15 @@ int mysocket(void)
 	c = setsockopt(mysocket, SOL_SOCKET, SO_REUSEADDR, (char *)reuse,sizeof(int));
 	if( -1 == c )
 		error("cannot set port\n");
-	c = bind(mysocket, (struct sockaddr *)&name, sizeof(name));
-	if( -1 == c )
-		error("cannot bind\n");
+//	c = -1;
+//	while( i-- && !c )
+	{
+		c = bind(mysocket, (struct sockaddr *)&name, sizeof(name));
+		if( -1 == c )
+			error("cannot bind\n");
+	}
+	if( -1 == i )
+		error("cannot bind exit...\n");
 	c = listen(mysocket,5);
 	if( -1 == c )
 		error("cannot listen\n");

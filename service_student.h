@@ -1,2 +1,2 @@
 
-void server_student(int,MYSQL);
+void server_student(int,MYSQL,char);
