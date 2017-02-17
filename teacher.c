@@ -1,4 +1,4 @@
-void teacher(int sock)
+void teacher(int sock,char** info)
 {
 
 }

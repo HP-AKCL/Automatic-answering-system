@@ -1,1 +1,1 @@
-void student(int);
+void student(int,char**);

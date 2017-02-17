@@ -30,8 +30,9 @@ void function_1(int sock)
 		exit(0);
 	}
 	recv(sock,mesg,sizeof(mesg),0);
+	printf("%s\n",buff);
 }
-void student(int sock)
+void student(int sock,char** info)
 {
 	int num = 0;
 	while(1)

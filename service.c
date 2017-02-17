@@ -59,12 +59,12 @@ void mysql_do(int myconnect)
 	MYSQL mysql;
 	mysql = mysql_connect();
 	c = recv( myconnect, buff,sizeof(buff),0);
-	printf("%d %s\n",c,buff);
 	if( -1 == c )
 		error("cannot get buff\n");
 	/**** who login(buff[0]) 1:student  2:teacher ****/
 	if( buff[0] == '1' )
 	{
+		printf("student%d %s\n",c,buff);
 		server_student(myconnect,mysql);
 	}
 	else if( buff[0] == '2')

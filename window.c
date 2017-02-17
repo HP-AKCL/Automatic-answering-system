@@ -9,13 +9,17 @@ char *menu[] = {
 	"1: student",
 	"2: teacher",
 	"int your chioce:"};
-extern void student(int);
-extern void teacher(int);
+char *win_info[] = {
+	"name    :",
+	"password:"};
+extern void student(int,char**);
+extern void teacher(int,char**);
 
 int my_client_al_print(int sock)
 {
 	int n = 1;
 	int i ;
+	char info[2][10] = {0};
 	if( !isatty(fileno(stdout)) )
 	{
 		printf("the atty isnot a terminal\n");
@@ -28,15 +32,28 @@ int my_client_al_print(int sock)
 		}
 		scanf("%d",&n);
 		getchar();
+
 		if( n >= 0 && n < 4 )
 		{
 			switch(n)
 			{
 				case 1:
-					student(sock);
+					for( i = 0; i < 2; i++)
+					{
+						printf("%s",win_info[i]);
+						scanf("%s",info[i]);
+						getchar();
+					}
+					student(sock,info);
 					break;
 				case 2:
-					teacher(sock);
+					for( i = 0; i < 2; i++)
+					{
+						printf("%s",win_info[i]);
+						scanf("%s",info[i]);
+						getchar();
+					}
+					teacher(sock,info);
 					break;
 				case 0:
 					printf("will exit...\n");
