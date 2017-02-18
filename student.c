@@ -19,9 +19,14 @@ void function_3(int sock,char info[][10]){}
 void function_2(int sock,char info[][10]){}
 void function_1(int sock,char info[][10])
 {
-	char mesg[1024];
-	char buff[2];
-	int flag;
+	char mesg[1024];//data
+	char buff[2];//connect buff
+	int flag,i;
+	char *p,*swap;
+	char ques[5][10] = {0};
+	char ans[5][10] = {0};
+	char answer[5][10];
+	char grade[5];// true or faules;
 	bzero(buff,sizeof(buff));
 	buff[0] = '0';
 	buff[1] = '0';// 00connect 01send name pas 10send data 11send exit
@@ -32,8 +37,51 @@ void function_1(int sock,char info[][10])
 		printf("send data error\n");
 		exit(0);
 	}
+	bzero(mesg,sizeof(mesg));
 	recv(sock,buff,sizeof(buff),0);
-	printf("!!!!!!!!!!!---------->%c %c\n",buff[0],buff[1]);
+	/*** send name and pas ***/
+	bzero(mesg,sizeof(mesg));
+	strcat(mesg,&info[0]);
+	strcat(mesg,"|");
+	strcat(mesg,&info[1]);
+	flag = send(sock,mesg,sizeof(mesg),0);
+	//printf("----->mesg%s\n",mesg);
+
+	{//answer the question.
+	recv(sock,mesg,sizeof(mesg),0);
+		swap = mesg;
+		for( i = 0; i < 5;i++)
+		{
+			p = strchr(swap,'-');
+			strncpy(ques[i],swap,p-swap);
+			swap = p + 1;
+			p = strchr(swap,'|');
+			strncpy(ans[i],swap,p-swap);
+			swap = p + 1;
+		}
+		for( i = 0; i < 5 ; i++)
+		{
+			printf("question%d : %s = ",i,ques[i]);
+			fgets(answer[i],sizeof(answer)-1,stdin);
+			if( atoi(answer[i]) == atoi(ans[i]) )
+				grade[i] = 1;
+			else
+				grade[i] = 0;
+			
+		}
+		for( i = 0; i < 5 ; i++)
+		{
+			printf("question%d:%s=%s",i,ques[i],answer[i]);
+			if( grade[i] == 1 )
+				printf("\tyou TRUE \n");
+			else
+				printf("\tyou WRONG the answer is%s\n",ans[i]);
+			
+		}
+		printf("press any next\n");
+		getchar();
+		
+	}
 //recv data 00 01 10 11
 	if(buff[0] == '0' && buff[1] == '0')
 	{
@@ -43,12 +91,6 @@ void function_1(int sock,char info[][10])
 	{
 		printf("student fun1 recv data error\n");
 	}
-	bzero(mesg,sizeof(mesg));
-	strcat(mesg,&info[0]);
-	strcat(mesg,"|");
-	strcat(mesg,&info[1]);
-	flag = send(sock,mesg,sizeof(mesg),0);
-	printf("----->mesg%s\n",mesg);
 }
 void student(int sock,char info[][10])
 {
