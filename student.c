@@ -27,9 +27,8 @@ void function_1(int sock,char info[][10])
 	char ans[5][10] = {0};
 	char answer[5][10];
 	char grade[5];// true or faules;
-	bzero(buff,sizeof(buff));
-	buff[0] = '0';
-	buff[1] = '0';// 00connect 01send name pas 10send data 11send exit
+	buff[0] = '0';//send  chioce.
+	buff[1] = '1';// 00connect 01send name pas 10send data 11send exit
 	flag = send(sock,buff,sizeof(buff),0);
 //	printf("%d %c %c\n",sock,buff[1],buff[0]);
 	if( flag != 2 )
@@ -37,18 +36,10 @@ void function_1(int sock,char info[][10])
 		printf("send data error\n");
 		exit(0);
 	}
-	bzero(mesg,sizeof(mesg));
-	recv(sock,buff,sizeof(buff),0);
-	/*** send name and pas ***/
-	bzero(mesg,sizeof(mesg));
-	strcat(mesg,&info[0]);
-	strcat(mesg,"|");
-	strcat(mesg,&info[1]);
-	flag = send(sock,mesg,sizeof(mesg),0);
-	//printf("----->mesg%s\n",mesg);
 
 	{//answer the question.
 	recv(sock,mesg,sizeof(mesg),0);
+//	printf("%s\n",mesg);
 		swap = mesg;
 		for( i = 0; i < 5;i++)
 		{
@@ -78,7 +69,16 @@ void function_1(int sock,char info[][10])
 				printf("\tyou WRONG the answer is%s\n",ans[i]);
 			
 		}
-		printf("press any next\n");
+		bzero(mesg,sizeof(mesg));
+		for( i = 0; i < 5 ; i++)//send answer to server.
+		{
+			p = strchr(answer[i],'\n');
+			*p = '\0';
+			strcat(mesg,answer[i]);
+			if( i != 4 )
+				strcat(mesg,"|");//split the answer.
+		}
+		send(sock,mesg,sizeof(mesg),0);
 		getchar();
 		
 	}
@@ -95,10 +95,33 @@ void function_1(int sock,char info[][10])
 void student(int sock,char info[][10])
 {
 	int num = 0;
+	char mesg[1024];//data
+	char buff[2];//connect buff
+	int flag;
+	bzero(buff,sizeof(buff));
+	buff[0] = '0';
+	buff[1] = '0';// 00connect 01send name pas 10send data 11send exit
+	flag = send(sock,buff,sizeof(buff),0);
+//	printf("%d %c %c\n",sock,buff[1],buff[0]);
+	if( flag != 2 )
+	{
+		printf("send data error\n");
+		exit(0);
+	}
+	bzero(mesg,sizeof(mesg));
+//	recv(sock,buff,sizeof(buff),0);
+	/*** send name and pas ***/
+	bzero(mesg,sizeof(mesg));
+	strcat(mesg,&info[0]);
+	strcat(mesg,"|");
+	strcat(mesg,&info[1]);
+	flag = send(sock,mesg,sizeof(mesg),0);
+//	printf("----->mesg%s\n",mesg);
+
 	while(1)
 	{
 		num = student_menu_print();
-		switch(num)
+		switch(num)// student loop
 		{
 			case 1:
 				function_1(sock,info);

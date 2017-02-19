@@ -58,21 +58,25 @@ void mysql_do(int myconnect)
 	int c = 0;
 	MYSQL mysql;
 	mysql = mysql_connect();
-	c = recv( myconnect, buff,sizeof(buff),0);
-	if( -1 == c )
-		error("cannot get buff\n");
-	/**** who login(buff[0]) 1:student  2:teacher ****/
-	if( buff[0] == '0' )
+	buff[1] = '0';
+	while( buff[1] != '3')
 	{
-		server_student(myconnect,mysql,buff[1]);
-	}
-	else if( buff[0] == '1')
-	{
-		server_teacher(myconnect,mysql);
-	}
-	else
-	{
-		error("server recva login data error");
+		c = recv( myconnect, buff,sizeof(buff),0);
+		if( -1 == c )
+			error("cannot get buff\n");
+		/**** who login(buff[0]) 1:student  2:teacher ****/
+		if( buff[0] == '0' )
+		{
+			server_student(myconnect,mysql,buff[1]);
+		}
+		else if( buff[0] == '1')
+		{
+			server_teacher(myconnect,mysql);
+		}
+		else
+		{
+			error("server recva login data error");
+		}
 	}
 //	buff[0] = '2';
 //	buff[1] = '2';
